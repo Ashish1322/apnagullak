@@ -1,12 +1,13 @@
 import { StyleSheet, Text, View,  SafeAreaView, TouchableOpacity, TextInput } from 'react-native'
-import React from 'react'
+import React, {useContext, useState} from 'react'
 import AppLoading from 'expo-app-loading'
 import {useFonts} from 'expo-font'
-
+import { Entypo } from '@expo/vector-icons'; 
 import { Fontisto } from '@expo/vector-icons'; 
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { UserContext } from '../context';
 
-const Register = () => {
+const Register = ({navigation}) => {
 
     let [fontsLoaded] = useFonts({
         'fbold': require("../assets/Montserrat/static/Montserrat-Bold.ttf"),
@@ -15,16 +16,45 @@ const Register = () => {
         'fregular': require("../assets/Montserrat/static/Montserrat-Regular.ttf")
     })
 
-    if(!fontsLoaded)
-    {
-        return <AppLoading />
+    const {signup, loading} = useContext(UserContext)
+
+    const [name,setName] = useState("")
+    const [email, setEmail] = useState("")
+    const [phone, setPhone] = useState("")
+    const [password, setPassword] = useState("")
+    const [password2, setPassword2] = useState("")
+    const [gender,setgender] = useState("male")
+
+    const handleSubmit = () => {
+      if(name.length < 2)
+        alert("Please enter valid name !")
+      else if ( phone.length !=10 || phone[0] <= '5' )
+        alert("Invalid Phone")
+      else if ( password != password2)
+        alert("Password doen't match")
+      else
+      {
+        signup(email,password,name,phone,gender)
+      }
+
     }
 
   return (
     <SafeAreaView style={styles.main}>
 
         <View style={styles.upperHalf}>
-            <Text style={styles.loginText}>Register</Text>
+        <TouchableOpacity
+        onPress={() => navigation.goBack() }
+        style={styles.goBack}>
+        <Entypo 
+      
+        name="chevron-left" 
+        size={30} 
+        color="white"
+         />
+        </TouchableOpacity>
+
+            <Text  style={styles.loginText}>Register</Text>
 
             <Ionicons 
             style={styles.icon}
@@ -35,17 +65,20 @@ const Register = () => {
         <View style={styles.lowerHalf}>
         
         <TextInput 
+        onChangeText={val => setEmail(val) }
         style={styles.input}
         placeholder="Email"
          />
 
             <View style={styles.inputRow}>
             <TextInput 
+            onChangeText={val => setName(val) }
             style={{...styles.input,...styles.inputRowChild}}
             placeholder="Name"
              />
              
              <TextInput 
+             onChangeText={val => setPhone(val) }
             style={{...styles.input,...styles.inputRowChild}}
             keyboardType="phone-pad"
             maxLength={10}
@@ -54,13 +87,20 @@ const Register = () => {
              />
             </View>
           
-            <TextInput style={styles.input}
+            <TextInput 
+            onChangeText={val => setPassword(val) }
+            style={styles.input}
             placeholder="Password" />
-            <TextInput style={styles.input}
+            <TextInput 
+            onChangeText={val => setPassword2(val) }
+            style={styles.input}
             placeholder="Confirm Password" />
 
             <View style={styles.genderRow}>
-              <TouchableOpacity style={styles.genderBox}>
+              <TouchableOpacity 
+              style={[styles.genderBox,gender == "male" ? {backgroundColor:"#d5d5d5"}: null]}
+              onPress={() => setgender("male")}
+              >
                  <Fontisto 
                  name="male" 
                  size={25} 
@@ -68,7 +108,10 @@ const Register = () => {
                  />
                  <Text>Male</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.genderBox}>
+              <TouchableOpacity 
+              style={[styles.genderBox,gender=="female" ? {backgroundColor:"#d5d5d5"}: null]}
+              onPress={() => setgender("female")}
+              >
                 <Fontisto 
                 name="female" 
                 size={25} 
@@ -79,14 +122,26 @@ const Register = () => {
             </View>
           
         </View>
-
-        <View style={styles.btnOuter}>
-            <TouchableOpacity style={styles.btn}>
+        {
+          loading 
+          ? 
+          <View style={styles.btnOuter}>
+            <TouchableOpacity disabled={true} style={styles.btn}>
+            <Text style={styles.btnText}>... Loading</Text>
+            </TouchableOpacity>
+         </View>
+          :
+          <View style={styles.btnOuter}>
+            <TouchableOpacity onPress={handleSubmit} style={styles.btn}>
             <Text style={styles.btnText}>Register</Text>
             </TouchableOpacity>
-        </View>
+         </View>
+        }
+       
 
-        <TouchableOpacity>
+        <TouchableOpacity
+        onPress={() => navigation.navigate("Login")}
+        >
             <Text style={styles.forget}>Already have an account ?</Text>
         </TouchableOpacity>
 
@@ -97,6 +152,11 @@ const Register = () => {
 export default Register
 
 const styles = StyleSheet.create({
+  goBack: {
+    position:"absolute",
+    left: 20,
+   
+},
   genderRow: {
     display:"flex",
     justifyContent: 'space-evenly',

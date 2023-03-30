@@ -1,13 +1,12 @@
 import { StyleSheet, Text, View,  SafeAreaView, TouchableOpacity, TextInput } from 'react-native'
 import React, {useContext} from 'react'
-import AppLoading from 'expo-app-loading'
 import {useFonts} from 'expo-font'
 import { Entypo } from '@expo/vector-icons'; 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { UserContext } from '../context';
 import {useState} from "react"
 
-const Login = ({navigation}) => {
+const ChildLogin = ({navigation}) => {
 
     let [fontsLoaded] = useFonts({
         'fbold': require("../assets/Montserrat/static/Montserrat-Bold.ttf"),
@@ -15,10 +14,10 @@ const Login = ({navigation}) => {
         'fmedbold': require("../assets/Montserrat/static/Montserrat-Medium.ttf"),
         'fregular': require("../assets/Montserrat/static/Montserrat-Regular.ttf")
     })
-    const {handleLogin,loading} = useContext(UserContext)
+    const {childLogin,loading} = useContext(UserContext)
 
-    const [password,setPassword] = useState("123456")
-    const [email, setEmail] = useState("test@gmail.com")
+    const [password,setPassword] = useState("Sbshahaha")
+    const [childId, setchildId] = useState("Ashish1322")
 
     return (
      <SafeAreaView style={styles.main}>
@@ -35,7 +34,7 @@ const Login = ({navigation}) => {
          />
         </TouchableOpacity>
         
-            <Text style={styles.loginText}>Parent LogIn</Text>
+            <Text style={styles.loginText}>Child Login</Text>
 
             <Ionicons 
             style={styles.icon}
@@ -46,17 +45,17 @@ const Login = ({navigation}) => {
         <View style={styles.lowerHalf}>
         
             <TextInput 
-            onChangeText={data => setEmail(data)}
+            onChangeText={data => setchildId(data)}
             style={[styles.input]}
-            placeholder="Email"
+            placeholder="Enter login Id"
              />
             <TextInput 
             onChangeText={data => setPassword(data)}
             style={[styles.input]}
-            placeholder="Password" />
+            placeholder="Enter Password" />
             
-            <TouchableOpacity onPress={() => navigation.navigate("ChildLogin")} >
-            <Text style={styles.forget}>I am Child ?</Text>
+            <TouchableOpacity  onPress={() => navigation.navigate("Login")}>
+            <Text style={styles.forget}>I am a Parent ?</Text>
             </TouchableOpacity>
 
            
@@ -72,7 +71,7 @@ const Login = ({navigation}) => {
             </View>
              :  
             <View style={styles.btnOuter}>
-                <TouchableOpacity style={styles.btn} onPress={() => handleLogin(email,password)}>
+                <TouchableOpacity style={styles.btn} onPress={() => childLogin(childId,password)}>
                 <Text style={styles.btnText}>Log in</Text>
                 </TouchableOpacity>
             </View>
@@ -88,7 +87,7 @@ const Login = ({navigation}) => {
   )
 }
 
-export default Login
+export default ChildLogin
 
 const styles = StyleSheet.create({
     goBack: {

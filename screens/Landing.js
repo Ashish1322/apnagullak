@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View,  SafeAreaView, TouchableOpacity, TextInput } from 'react-native'
-import React from 'react'
+import React, {useContext} from 'react'
 import AppLoading from 'expo-app-loading'
 import {useFonts} from 'expo-font'
 
@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons'; 
 
 
-const Landing = () => {
+const Landing = ({navigation}) => {
 
     let [fontsLoaded] = useFonts({
         'fbold': require("../assets/Montserrat/static/Montserrat-Bold.ttf"),
@@ -21,6 +21,7 @@ const Landing = () => {
         return <AppLoading />
     }
 
+   
   return (
     <SafeAreaView>
     <View style={styles.upperHalf}>
@@ -45,7 +46,9 @@ const Landing = () => {
 
        
 
-        <TouchableOpacity style={styles.btn}>
+        <TouchableOpacity 
+        onPress={() => navigation.navigate("Login") }
+        style={styles.btn}>
             <Text style={styles.btnText}>Log in</Text>
         </TouchableOpacity>
     </View>
@@ -55,11 +58,13 @@ const Landing = () => {
 
 
       <View style={styles.bottomRow}>
-      <TouchableOpacity>
-        <Text style={styles.help}>Need Help ?</Text>
+      <TouchableOpacity onPress={() => navigation.navigate("ChildLogin") }>
+        <Text style={styles.help}>Are you child ?</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={{display:'flex',
+      <TouchableOpacity
+      onPress={() =>navigation.navigate("Register")}
+       style={{display:'flex',
         flexDirection:"row",
       alignItems:"center"}}
       >
