@@ -81,7 +81,7 @@ const Transactions = ({navigation}) => {
                     transaction.amount[0]=='-' ? {color:"red"}:{color:"#6cc366"}]}
                   >
                   ₹ {transaction.amount}</Text>
-                  <Text style={[styles.transP,{textAlign:"right"}]}>{transaction.razorpayOrderid}</Text>
+                  <Text style={[styles.transP,{textAlign:"right"}]}>{transaction.stripePaymentId}</Text>
                 </View>
               </View>
           )

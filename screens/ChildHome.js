@@ -6,7 +6,7 @@ import { UserContext } from '../context';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import Modal from "react-native-modal";
 import { AntDesign } from '@expo/vector-icons'; 
-import { getDocs, collection,query,where,orderBy, addDoc, serverTimestamp,doc, updateDoc } from 'firebase/firestore';
+import { getDocs, collection,query,where,orderBy, addDoc, serverTimestamp,doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -60,12 +60,8 @@ const ChildHome = ({navigation}) => {
     }
 
     
-    const handleModalSubmit = () => {
-        if(!child.active )
-        {
-            alert("Your Account is blocked by your parent !")
-            return;
-        }
+    const handleModalSubmit = async () => {
+
         if(amount <= 0 || why.length < 3)
         {
             alert("Enter valid details !")
@@ -76,12 +72,24 @@ const ChildHome = ({navigation}) => {
             alert("Insufficeint Funds")
             return
         }
+        // checking chil's account is activated or blocked from direct database inroder to get the correct detials
+        // not use the current child details fetch the new child details because it may be blocked by it's parent immedeatily so everytime child make payment first fetch the update account stats
         setLoading(true)
+        const childRef= doc(db,"childs",child && child.userId)
+        const sanpShot  = await getDoc(childRef)
+        const childData = sanpShot.data();
+
+        if(childData.active == false)
+        {
+            setLoading(false)
+            refreshChild() // refresh child to show updated details
+            alert("Your account is blocked by your parent")
+            return
+        }
         // add entery in transactions
         addDoc(collection(db,"transactions"),{
             madeBy: child.userId,
-            razorpayOrderid: "nil",
-            razorpayPaymentId: "nil",
+            stripePaymentId: "nil",
             amount:  "-"+amount,
             success: true,
             type: why,
@@ -207,7 +215,7 @@ const ChildHome = ({navigation}) => {
                     transaction.amount[0]=='-' ? {color:"red"}:{color:"#6cc366"}]}
                   >
                   ₹ {transaction.amount}</Text>
-                  <Text style={[styles.transP,{textAlign:"right"}]}>{transaction.razorpayOrderid}</Text>
+                  <Text style={[styles.transP,{textAlign:"right"}]}>{transaction.stripePaymentId}</Text>
                 </View>
               </View>
           )

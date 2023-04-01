@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View,  SafeAreaView, Dimensions} from 'react-native'
+import { StyleSheet, Text, View,  SafeAreaView, Dimensions, TouchableOpacity} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import AppLoading from 'expo-app-loading'
 import {useFonts} from 'expo-font'
 import { collection ,getDocs} from 'firebase/firestore'
 import { db } from '../firebase'
-
+import { Entypo } from '@expo/vector-icons'; 
 
 import {
     LineChart,
@@ -91,6 +91,16 @@ const Statistics = ({route,navigation}) => {
     <SafeAreaView style={styles.main}>
 
         <View style={styles.upperHalf}>
+        <TouchableOpacity
+        onPress={() => navigation.goBack() }
+        style={styles.goBack}>
+        <Entypo 
+      
+        name="chevron-left" 
+        size={30} 
+        color="white"
+         />
+        </TouchableOpacity>
             <Text style={styles.loginText}>Statistics</Text>
         </View>
         
@@ -234,6 +244,10 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontFamily:"fregular",
         color:"grey"
-      }
+      },
+      goBack: {
+        position:"absolute",
+        left: 20,  
+    },
     
 })

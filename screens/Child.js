@@ -6,7 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getDocs, collection,query,where , doc, updateDoc, getDoc} from 'firebase/firestore';
 import { db } from '../firebase';
 import { UserContext } from '../context';
-
+import { Entypo } from '@expo/vector-icons'; 
 const Child = ({route,navigation}) => {
 
     const [child,setChild] = useState(null)
@@ -96,6 +96,16 @@ const Child = ({route,navigation}) => {
     <SafeAreaView style={styles.main}>
 
         <View style={styles.upperHalf}>
+        <TouchableOpacity
+        onPress={() => navigation.goBack() }
+        style={styles.goBack}>
+        <Entypo 
+      
+        name="chevron-left" 
+        size={30} 
+        color="white"
+         />
+        </TouchableOpacity>
             <Text style={styles.loginText}>{child && child.name}</Text>
         </View>
         {
@@ -166,7 +176,7 @@ const Child = ({route,navigation}) => {
                     item.amount[0]=='-' ? {color:"red"}:{color:"#6cc366"}]}
                   >
                   ₹ {item.amount}</Text>
-                  <Text style={[styles.transP,{textAlign:"right"}]}>{item.razorpayOrderid}</Text>
+                  <Text style={[styles.transP,{textAlign:"right"}]}>{item.stripePaymentId}</Text>
                 </View>
               </View> )
             }
@@ -223,6 +233,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         backgroundColor:"white"
        
+    },
+    goBack: {
+        position:"absolute",
+        left: 20,  
     },
     title: {
         textAlign:"center",

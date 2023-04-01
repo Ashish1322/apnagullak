@@ -25,6 +25,7 @@ import { useNavigation } from '@react-navigation/native';
 import {doc, setDoc, getDoc, updateDoc, addDoc, collection,serverTimestamp} from "firebase/firestore"
 
 
+
 export default function AuthContext()
 {
    
@@ -142,15 +143,14 @@ export default function AuthContext()
     // 1. Method to add the transactions of parent account
     // 2. update the parent balance, 
     // 3. finally refresh teh parent so get the updated details
-    const addParentTransaction = (amount,razorpayOrderid,razorpayPaymentId,success,type) => {
+    const addParentTransaction = (amount,razorpayOrderid,success,type) => {
    
       setLoading(true)
 
       // making the transactions entry in transacton collection
       addDoc(collection(db,"transactions"),{
         madeBy: user.id,
-        razorpayOrderid: razorpayOrderid,
-        razorpayPaymentId: razorpayPaymentId,
+        stripePaymentId: razorpayOrderid,
         amount:  amount,
         success: success,
         type:type,
@@ -163,7 +163,11 @@ export default function AuthContext()
         updateDoc(userRef, {
           wallet:  parseInt(user.wallet) + parseInt(amount)
         })
-        .then(() =>  refreshUser()  )
+        .then(() =>  {
+          // payemnt success
+          refreshUser()
+          alert("Money Added Successfully")
+        }  )
         .catch(err => {
           setLoading(false)
           alert("Some error occured ! Please try again")
@@ -189,7 +193,7 @@ export default function AuthContext()
       updateDoc(docRef,{wallet: parseInt(child.wallet) + parseInt(amount)})
       .then(() => {
           // once money is addded to child account then call the addParentTransaction method to add and update detials
-          addParentTransaction("-"+amount,"nill","nill",true,child.name+" "+"Pocket Money")
+          addParentTransaction("-"+amount,"nill",true,child.name+" "+"Pocket Money")
           navigation.navigate("Home")
       })
       .catch(() => {
@@ -295,6 +299,7 @@ export default function AuthContext()
                       <Stack.Screen name='Transactions' component={Transactions} />
                       <Stack.Screen name="Child" component={Child} />
                       <Stack.Screen name="Statistics" component={Statistics} />
+                    
                       </>
                      
                     }

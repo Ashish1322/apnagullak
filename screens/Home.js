@@ -4,7 +4,6 @@ import AppLoading from 'expo-app-loading'
 import {useFonts} from 'expo-font'
 import { FontAwesome } from '@expo/vector-icons'; 
 import { Entypo } from '@expo/vector-icons'; 
-import { Ionicons } from '@expo/vector-icons'; 
 import { UserContext } from '../context';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import Modal from "react-native-modal";
@@ -13,12 +12,79 @@ import { getDocs, collection,query,where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { MaterialIcons } from '@expo/vector-icons'; 
 
+// stripe
+import { CardField, useConfirmPayment } from "@stripe/stripe-react-native";
+
+const API_URL = "http://localhost:3000";
+
+
 const Home = ({navigation}) => {
 
     const [isModalVisible, setModalVisible] = useState(false);
     const openModal = () => setModalVisible(true)
     const closeModal = () => setModalVisible(false);
+    const [amount,setAmount] = useState(0);
+    const {user,addParentTransaction, loading, addChild, logout} = useContext(UserContext)
+   
 
+    // stripe
+    const [isPaymentModalVisible, setPaymentModalVisible] = useState(false);
+    const [cardDetails, setCardDetails] = useState();
+    const { confirmPayment, loading: wait} = useConfirmPayment();
+
+    const fetchPaymentIntentClientSecret = async () => {
+        const response = await fetch(`${API_URL}/create-payment-intent`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({amount: amount})
+        });
+        const { clientSecret, error } = await response.json();
+        return { clientSecret, error };
+      };
+
+    const handlePayPress = async () => {
+       
+        //1.Gather the customer's billing information (e.g., email)
+        if (!cardDetails?.complete || amount<=0) {
+          alert("Please enter Complete card details and Amount");
+          return;
+        }
+        const billingDetails = {
+          email: user.email,
+        };
+        //2.Fetch the intent client secret from the backend
+        
+        try {
+            
+          const { clientSecret, error } = await fetchPaymentIntentClientSecret();
+          //2. confirm the payment
+          if (error) {
+            console.log("Unable to process payment");
+          } else {
+            const { paymentIntent, error } = await confirmPayment(clientSecret, {
+                paymentMethodType: "Card",
+                paymentMethodData:{
+                    billingDetails
+                },
+    
+            });
+            if (error) {
+                console.log(error)
+              alert(`Payment Confirmation Error ${error.message}`);
+
+            } else if (paymentIntent) {
+                // if stripe payment is successfull then add the transaction in the database of parent and update the walet also
+                setPaymentModalVisible(false) // close payment modal
+                addParentTransaction(amount,paymentIntent.id,true,"Recharge")
+            }
+          }
+        } catch (e) {
+          console.log(e);
+        }
+        //3.Confirm the payment with the card details
+      };
 
     let [fontsLoaded] = useFonts({
         'fbold': require("../assets/Montserrat/static/Montserrat-Bold.ttf"),
@@ -27,8 +93,7 @@ const Home = ({navigation}) => {
         'fregular': require("../assets/Montserrat/static/Montserrat-Regular.ttf")
     })
 
-    const {user,addParentTransaction, loading, addChild, logout} = useContext(UserContext)
-    const [amount,setAmount] = useState(0);
+    
     // Modal States and Methods
     const [modalname,setmodalnameName] = useState("")
     const [modalnameuserId,setmodalnameUserId] = useState("")
@@ -56,13 +121,6 @@ const Home = ({navigation}) => {
     {
         return <AppLoading />
     }
-
-    const addMoney = () => {
-       // do the razorpay stuff herexs
-       addParentTransaction(amount,"orderId2323232_322","23232dlfk",true,"Recharge")
-    }
-
-
     
     const handleModalSubmit = () => {
         // password
@@ -105,7 +163,7 @@ const Home = ({navigation}) => {
   return (
 
     <SafeAreaView style={styles.main}>
-
+    
         <View style={styles.upperHalf}>
             <Text style={styles.loginText}>Apna Gullak</Text>
         </View>
@@ -132,7 +190,13 @@ const Home = ({navigation}) => {
             
            
             <View style={styles.btnRow}>
-                <TextInput keyboardType='numeric' onChangeText={value => setAmount(value)} style={styles.input} />
+            <TouchableOpacity
+            style={[styles.btn,{backgroundColor:"#6cc366"}]}
+            onPress={() => navigation.navigate("Transactions")}
+            >
+                <Text
+                 style={styles.btnText}> Passbook</Text>
+            </TouchableOpacity>
 
                 {
                     loading ? 
@@ -146,9 +210,8 @@ const Home = ({navigation}) => {
                     </TouchableOpacity>
                     :
                     <TouchableOpacity
-                    disabled = {amount <=0 }
                     style={styles.btn}
-                    onPress={addMoney}
+                    onPress={() => setPaymentModalVisible(true)}
                     >
                         <Text
                          style={styles.btnText}>Add Money</Text>
@@ -256,6 +319,53 @@ const Home = ({navigation}) => {
                 </View>
         </Modal>
         
+
+        <Modal isVisible={isPaymentModalVisible}>
+                <View style={{backgroundColor:"white",padding: 20, borderRadius: 10 }}>
+                
+                <View style={{display:"flex",justifyContent:"space-between",flexDirection:"row", marginBottom: 20,marginTop: 10}}>
+                    <Text style={{fontFamily:"fsemibold",fontSize: 16,color:"grey"}}>Payment Details</Text>
+
+                    <TouchableOpacity onPress={() => setPaymentModalVisible(false)}>
+                        <AntDesign name="close" size={24} color="grey" />
+                    </TouchableOpacity>
+                
+
+                </View>
+
+                <TextInput
+                autoCapitalize="none"
+                placeholder="E-mail"
+                value={user && user.email}
+                style={[styles.input2,{color:"grey"}]}
+                editable={false}
+                 />
+                 <TextInput
+                keyboardType='numeric'
+                placeholder="Amount (INR)"
+                value={amount}
+                style={styles.input2}
+                onChangeText={val => setAmount(val)}
+                 />
+              <CardField
+                postalCodeEnabled={true}
+                placeholder={{
+                  number: "4242 4242 4242 4242",
+                }}
+                cardStyle={styles.card}
+                style={styles.cardContainer}
+                onCardChange={cardDetails => {
+                  setCardDetails(cardDetails);
+                }}
+              />
+            
+              <Button onPress={handlePayPress}  
+              title={wait ? "Please Wait..." : "Pay"}
+              disabled={wait} />
+
+                
+                </View>
+        </Modal>
 
 
         
@@ -410,6 +520,22 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor:"#d5d5d5",
         paddingBottom: 10
-    }
+    },
+    input2: {
+        backgroundColor: "#efefefef",
+    
+        borderRadius: 8,
+        fontSize: 20,
+        height: 50,
+        padding: 10,
+        marginTop: 30
+      },
+      card: {
+        backgroundColor: "#efefefef",
+      },
+      cardContainer: {
+        height: 50,
+        marginVertical: 30,
+      },
     
 })
