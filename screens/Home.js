@@ -15,7 +15,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 // stripe
 import { CardField, useConfirmPayment } from "@stripe/stripe-react-native";
 
-const API_URL = "http://localhost:3000";
+// AMD Instance API Hosted  (External IP)
+const API_URL = "http://35.192.141.227:8080";
 
 
 const Home = ({navigation}) => {

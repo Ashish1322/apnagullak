@@ -39,14 +39,21 @@ export default function AuthContext()
     // handle login
     const handleLogin =  (email,password) => {
         setLoading(true)
+ 
+
         signInWithEmailAndPassword(auth, email, password)
         .then( async (userCredential) => {
+
             // if credentials are right then fetch the actual user from firestore and save in state
             const id = userCredential.user.uid;   // fetching the doc id 
             const docRef = doc(db,"parent",id);   // making ref to doc
+  
             const docSnap = await getDoc(docRef); // fetching the doc
-            if (docSnap.exists()) {               // validataing the doc
+
+            if (docSnap.exists()) {    
+               // validataing the doc
               setUser(docSnap.data())
+       
               setLoading(false)
             } else {
               setLoading(false)

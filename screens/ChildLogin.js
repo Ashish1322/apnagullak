@@ -16,8 +16,8 @@ const ChildLogin = ({navigation}) => {
     })
     const {childLogin,loading} = useContext(UserContext)
 
-    const [password,setPassword] = useState("Sbshahaha")
-    const [childId, setchildId] = useState("Ashish1322")
+    const [password,setPassword] = useState("")
+    const [childId, setchildId] = useState("")
 
     return (
      <SafeAreaView style={styles.main}>

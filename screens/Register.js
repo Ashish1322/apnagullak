@@ -88,10 +88,12 @@ const Register = ({navigation}) => {
             </View>
           
             <TextInput 
+            secureTextEntry={true}
             onChangeText={val => setPassword(val) }
             style={styles.input}
             placeholder="Password" />
             <TextInput 
+            secureTextEntry={true}
             onChangeText={val => setPassword2(val) }
             style={styles.input}
             placeholder="Confirm Password" />

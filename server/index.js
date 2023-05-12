@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors"
 import boyd_parser from "body-parser"
+import nodemailer from "nodemailer"
 
 const app = express();
 app.use(cors())
@@ -14,9 +15,9 @@ import Stripe from "stripe";
 //Confirm the API version from your stripe dashboard
 const stripe = Stripe(SECRET_KEY, { apiVersion: "2020-08-27" });
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
-});
+
+
+app.get("/",(req,res) => res.send("Working"))
 
 app.post("/create-payment-intent", async (req, res) => {
   try {
@@ -36,4 +37,8 @@ app.post("/create-payment-intent", async (req, res) => {
     console.log(e.message);
     res.json({ error: e.message });
   }
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`);
 });

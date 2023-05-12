@@ -17,8 +17,8 @@ const Login = ({navigation}) => {
     })
     const {handleLogin,loading} = useContext(UserContext)
 
-    const [password,setPassword] = useState("123456")
-    const [email, setEmail] = useState("test@gmail.com")
+    const [password,setPassword] = useState("")
+    const [email, setEmail] = useState("")
 
     return (
      <SafeAreaView style={styles.main}>
@@ -51,6 +51,7 @@ const Login = ({navigation}) => {
             placeholder="Email"
              />
             <TextInput 
+            secureTextEntry={true}
             onChangeText={data => setPassword(data)}
             style={[styles.input]}
             placeholder="Password" />
