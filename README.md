@@ -123,5 +123,7 @@ Start Project
 
 - [@ashish1322](https://github.com/Ashish1322/)
 - [@planetkumbhaj](https://github.com/PlanetKumbhaj)
+- [@itsayu](https://github.com/itsayu)
+- [@shuchi111](https://github.com/shuchi111)
 
 
