@@ -9,6 +9,8 @@ import { AntDesign } from '@expo/vector-icons';
 import { getDocs, collection,query,where,orderBy, addDoc, serverTimestamp,doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons'; 
+
 
 
 const ChildHome = ({navigation}) => {
@@ -86,6 +88,12 @@ const ChildHome = ({navigation}) => {
             alert("Your account is blocked by your parent")
             return
         }
+        // checkin the max amount
+        if(parseInt(childData.transationAmountLimit) < amount)
+        {
+            setLoading(false)
+            alert("You exceeded your higher amount limit for this transaction!")
+        }
         // add entery in transactions
         addDoc(collection(db,"transactions"),{
             madeBy: child.userId,
@@ -117,7 +125,7 @@ const ChildHome = ({navigation}) => {
             setLoading(false)
             alert("Error Occured")})
     }
-    
+  
 
   return (
 
@@ -128,10 +136,20 @@ const ChildHome = ({navigation}) => {
         </View>
    
         <View style={styles.homeCard}>
-            <Text style={[child && child.active ? styles.active : styles.deactive]}>
-            {
-                child && child.active ? "Active" : "Blocked"
-            }</Text>
+
+            <View style={{display : "flex",flexDirection:"row",justifyContent:"space-between"}}>  
+                    <Text style={[child && child.active ? styles.active : styles.deactive]}>
+                    {
+                        child && child.active ? "Active" : "Blocked"
+                    }</Text>
+                    
+                    <TouchableOpacity onPress={refreshChild}>
+                    <Ionicons name="refresh-circle-outline" size={24} color="black" />
+                    </TouchableOpacity>
+            </View>
+           
+
+         
 
             <View style={{display:"flex",flexDirection:"row",gap:20}}>
                 <View>
@@ -172,7 +190,7 @@ const ChildHome = ({navigation}) => {
                 <View style={{backgroundColor:"white",padding: 20, borderRadius: 10 }}>
                 
                 <View style={{display:"flex",justifyContent:"space-between",flexDirection:"row", marginBottom: 20,marginTop: 10}}>
-                    <Text style={{fontFamily:"fsemibold",fontSize: 16,color:"grey"}}>Add Child</Text>
+                    <Text style={{fontFamily:"fsemibold",fontSize: 16,color:"grey"}}>Pay Now</Text>
                     <TouchableOpacity onPress={() => closeModal()}>
                         <AntDesign name="close" size={24} color="grey" />
                     </TouchableOpacity>

@@ -99,6 +99,7 @@ const Home = ({navigation}) => {
     const [modalname,setmodalnameName] = useState("")
     const [modalnameuserId,setmodalnameUserId] = useState("")
     const [modalnamepassword,setmodalnamePassword] = useState("")
+    const [modalAmountLimit,setModalAmountLimit] = useState(0)
     // childs state
     const [childs,setChilds] = useState([])
     // Fetching all the childs of the current user to show on the Home childs section
@@ -141,6 +142,11 @@ const Home = ({navigation}) => {
             alert("UserId cannot conatain spaces !")
             return;
         }
+        if(modalAmountLimit <=0 )
+        {
+          alert("Transation amount must be greater than 0");
+          return;
+        }
         // check if the user name already exsits
         const childsRef = collection(db, "childs");
         const q = query(childsRef, where("userId", "==", modalnameuserId));
@@ -149,7 +155,7 @@ const Home = ({navigation}) => {
             if(snapshot.empty) // if there is no user with the give user id 
             {
                 // then create a new user
-                addChild(modalname,modalnamepassword,modalnameuserId)
+                addChild(modalname,modalnamepassword,modalnameuserId,modalAmountLimit)
                 closeModal()
             }
             else
@@ -315,6 +321,11 @@ const Home = ({navigation}) => {
                 onChangeText={val =>  setmodalnamePassword(val)}
                 style={styles.modalInput}
                 placeholder="Password" />
+
+                <TextInput 
+                onChangeText={val =>  setModalAmountLimit(val)}
+                style={styles.modalInput}
+                placeholder="Payment Amount Limit" />
                 
                 <Button  onPress={() => handleModalSubmit()} title="Add Child"  />
                 </View>

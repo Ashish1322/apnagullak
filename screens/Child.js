@@ -1,12 +1,17 @@
-import { StyleSheet, Text, View,  SafeAreaView, TouchableOpacity, TextInput,ScrollView, Switch} from 'react-native'
+import { StyleSheet, Text, View,  SafeAreaView, TouchableOpacity, TextInput,ScrollView, Switch, Button} from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import AppLoading from 'expo-app-loading'
 import {useFonts} from 'expo-font'
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
-import { getDocs, collection,query,where , doc, updateDoc, getDoc} from 'firebase/firestore';
+import { getDocs, collection,query,where , doc, updateDoc, getDoc, setDoc} from 'firebase/firestore';
 import { db } from '../firebase';
 import { UserContext } from '../context';
 import { Entypo } from '@expo/vector-icons'; 
+import Modal from "react-native-modal";
+import { AntDesign } from '@expo/vector-icons'; 
+
+
+
 const Child = ({route,navigation}) => {
 
     const [child,setChild] = useState(null)
@@ -30,7 +35,15 @@ const Child = ({route,navigation}) => {
         
         
     }
-   
+    
+    // Modal to edit Child Details
+    const [isModalVisible, setModalVisible] = useState(false);
+    const openModal = () => setModalVisible(true)
+    const closeModal = () => setModalVisible(false);
+    const [modalname,setmodalnameName] = useState("")
+    const [modalnamepassword,setmodalnamePassword] = useState("")
+    const [modalAmountLimit,setModalAmountLimit] = useState(0)
+
     // setting the child details by fetching it's value from database, ( id of the child is passed by parent component using router)
     useEffect(()=>{
         setTransLoading(true)
@@ -40,6 +53,12 @@ const Child = ({route,navigation}) => {
             // once we fetch the child then load it's transactons
             loadTransactions()
             setChild(snapshot.data())
+
+            // populating the intiial values of child on the modal
+            setmodalnameName(snapshot.data().name)
+            setmodalnamePassword(snapshot.data().password)
+            setModalAmountLimit(snapshot.data().transationAmountLimit)
+
             // setting teh sweith
             if(snapshot.data().active)
             {
@@ -55,6 +74,7 @@ const Child = ({route,navigation}) => {
 
     },[])
 
+    
     // method to load the transactions when the child details are fetch from database
     const loadTransactions = () => {
 
@@ -89,7 +109,18 @@ const Child = ({route,navigation}) => {
         return <AppLoading />
     }
 
- 
+    const handleModalSubmit = async  () => {
+        // updating the child details
+        await setDoc(doc(db, "childs", child.userId), {
+            ...child,
+            name: modalname,
+            password: modalnamepassword,
+            transationAmountLimit: modalAmountLimit
+          });
+        
+        alert("Details Updated")
+    }
+    console.log(child)
 
     return (
 
@@ -122,6 +153,10 @@ const Child = ({route,navigation}) => {
                 onValueChange={toggleSwitch}
                 value={isEnabled}
                 />
+
+                <TouchableOpacity style={{position:"absolute",right:0}} onPress={openModal}>
+                    <MaterialCommunityIcons name="lead-pencil" size={24} color="white" />
+                </TouchableOpacity>
             </View>
     
                 <View style={{display:"flex",flexDirection:"row",gap:20}}>
@@ -160,6 +195,40 @@ const Child = ({route,navigation}) => {
     
             </View>
     
+            <Modal isVisible={isModalVisible}>
+            <View style={{backgroundColor:"white",padding: 20, borderRadius: 10 }}>
+            
+            <View style={{display:"flex",justifyContent:"space-between",flexDirection:"row", marginBottom: 20,marginTop: 10}}>
+                <Text style={{fontFamily:"fsemibold",fontSize: 16,color:"grey"}}>Update Details</Text>
+                <TouchableOpacity onPress={() => closeModal()}>
+                    <AntDesign name="close" size={24} color="grey" />
+                </TouchableOpacity>
+            </View>
+
+            <TextInput 
+            value={modalname}
+            onChangeText={val =>  setmodalnameName(val)}
+            style={styles.modalInput}
+            placeholder="Name" />
+
+
+            <TextInput 
+            value={modalnamepassword}
+            onChangeText={val =>  setmodalnamePassword(val)}
+            style={styles.modalInput}
+            placeholder="Password" />
+
+            <TextInput 
+            value={modalAmountLimit}
+            onChangeText={val =>  setModalAmountLimit(val)}
+            style={styles.modalInput}
+            placeholder="Payment Amount Limit" 
+        />
+            
+            <Button  onPress={() => handleModalSubmit()} title="Update Details"  />
+            </View>
+    </Modal>
+
             <Text style={styles.title}>Transactions</Text>
             <ScrollView style={styles.lowerHalf}>
     
@@ -332,6 +401,14 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontFamily:"fregular",
         color:"grey"
-      }
+      },
+      modalInput: {
+        padding: 10,
+        borderRadius: 8,
+        borderColor: "#d3d3d3",
+        borderStyle: 'solid',
+        borderWidth: 1,
+        marginVertical: 8
+    } ,
     
 })

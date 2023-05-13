@@ -213,7 +213,7 @@ export default function AuthContext()
 
 
     // Add Child 
-    const addChild = (name,password,userId) => {
+    const addChild = (name,password,userId,modalAmountLimit) => {
       const childRef = doc(db,"childs",userId)
       setDoc(childRef, {
         name: name,
@@ -222,7 +222,9 @@ export default function AuthContext()
         permissions: [],
         active: true,
         parent: user.id,
-        wallet: 0
+        wallet: 0,
+        transationAmountLimit: modalAmountLimit
+    
       })
       .then(() => refreshUser())
       .catch(() => alert("Something went Wrong !"))
