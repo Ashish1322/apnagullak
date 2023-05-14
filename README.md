@@ -30,7 +30,7 @@ categories such as food, education, entertainment, etc.
 
 **Notifications:** The app sends notifications to parents whenever their child makes a transaction from their mini wallet.
 
-**Parental Control:** Parents have complete control over their child's mini wallet and can monitor and control their spending.
+**Parental Control:** Parents have complete control over their child's mini wallet and can monitor and control their spending. Parents can also block child account any time and they can also set the trnasaction amount limit in order to restrict the huge transactons.
 
 **No Account for Child:** The app does not require the child to open a separate account, and they can access their parent's account 
 to spend the money that has been allocated to them.
